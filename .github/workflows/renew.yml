@@ -12,8 +12,26 @@ jobs:
       contents: write
       actions: write
     steps:
-      - name: 📥 下载代码
+      - name: 📥 下载当前代码
         uses: actions/checkout@v6
+
+      # ✅ 新增：从私有仓库拉取 aclclouds.py
+      - name: 📥 拉取私有仓库脚本
+        uses: actions/checkout@v6
+        with:
+          repository: gunqio/zhiyong
+          token: ${{ secrets.PRIVATE_REPO_TOKEN }} # 需要在 Secrets 中配置 PAT
+          path: private-repo # 指定下载到子目录，避免覆盖主仓库文件
+          sparse-checkout: |
+            aclclouds.py
+          sparse-checkout-cone-mode: false
+
+      # ✅ 新增：将目标文件移动到工作区根目录（可选）
+      - name: 📂 移动脚本到工作区
+        run: |
+          cp private-repo/aclclouds.py ./aclclouds.py
+          rm -rf private-repo
+
       - name: 🐍 设置 Python
         uses: actions/setup-python@v6
         with:
